@@ -112,7 +112,11 @@ TextileHome is a modern e-commerce application built for selling premium textile
 ## Changelog
 ```
 Changelog:
-- July 02, 2025. Initial setup
+- July 02, 2025. Initial setup with in-memory storage
+- July 02, 2025. Added PostgreSQL database with Drizzle ORM integration
+- July 02, 2025. Migrated from in-memory storage to persistent database storage
+- July 02, 2025. Added security middleware (Helmet, rate limiting)
+- July 02, 2025. Seeded database with 20 sample products across 3 categories
 ```
 
 ## User Preferences
