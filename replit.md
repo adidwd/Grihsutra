@@ -21,12 +21,24 @@ TextileHome is a modern e-commerce application built for selling premium textile
 - **Database**: PostgreSQL (configured for Neon serverless)
 - **ORM**: Drizzle ORM for type-safe database operations
 - **Session Management**: Client-side session ID stored in localStorage
+- **Security**: Comprehensive protection suite with multi-layer defense
 
 ### Data Storage
 - **Database**: PostgreSQL with Drizzle ORM
 - **Tables**: Products and cart items with foreign key relationships
 - **Development Storage**: In-memory storage implementation for development
 - **Connection**: Neon serverless database connection
+
+### Security Features
+- **Multi-layer Protection**: 8 security middleware layers for comprehensive defense
+- **Bot Detection**: Automatic blocking of automated tools, crawlers, and scrapers
+- **Rate Limiting**: Progressive limits (30/min strict, 200/15min general, 15/5min cart, 10/min search)
+- **DDoS Protection**: Request size limits and progressive IP blocking
+- **Attack Prevention**: SQL injection, XSS, and CSRF protection
+- **Intelligent Blocking**: Automatic IP banning after repeated violations
+- **Honeypot Traps**: Fake endpoints to catch automated attacks
+- **Security Monitoring**: Real-time status endpoint for threat tracking
+- **Request Validation**: Header, content-type, and origin verification
 
 ## Key Components
 
@@ -54,11 +66,12 @@ TextileHome is a modern e-commerce application built for selling premium textile
 - GET `/api/products` - All products
 - GET `/api/products/featured` - Featured products
 - GET `/api/products/category/:category` - Products by category
-- GET `/api/products/search` - Product search
+- GET `/api/products/search` - Product search (rate limited: 10/min)
 - GET `/api/cart` - Cart items
-- POST `/api/cart` - Add to cart
-- PUT `/api/cart/:id` - Update cart item
-- DELETE `/api/cart/:id` - Remove from cart
+- POST `/api/cart` - Add to cart (rate limited: 15/5min)
+- PUT `/api/cart/:id` - Update cart item (rate limited: 15/5min)
+- DELETE `/api/cart/:id` - Remove from cart (rate limited: 15/5min)
+- GET `/api/security/status` - Security monitoring endpoint
 
 ## Data Flow
 
@@ -115,8 +128,17 @@ Changelog:
 - July 02, 2025. Initial setup with in-memory storage
 - July 02, 2025. Added PostgreSQL database with Drizzle ORM integration
 - July 02, 2025. Migrated from in-memory storage to persistent database storage
-- July 02, 2025. Added security middleware (Helmet, rate limiting)
+- July 02, 2025. Added basic security middleware (Helmet, rate limiting)
 - July 02, 2025. Seeded database with 20 sample products across 3 categories
+- July 02, 2025. Implemented comprehensive security suite with 8-layer protection:
+  * Bot detection and automated blocking
+  * Progressive rate limiting (strict: 30/min, general: 200/15min, cart: 15/5min, search: 10/min)
+  * SQL injection and XSS protection with request sanitization
+  * CSRF protection with origin validation
+  * IP blocking system with temporary and permanent bans
+  * Honeypot traps for automated attacks
+  * Request size limiting and content validation
+  * Security monitoring endpoint for threat tracking
 ```
 
 ## User Preferences

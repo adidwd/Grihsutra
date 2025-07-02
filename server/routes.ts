@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCartItemSchema } from "@shared/schema";
+import { blockedIPs, suspiciousIPs } from "./security";
 import { z } from "zod";
 
 function generateSessionId(): string {
@@ -165,6 +166,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(500).json({ message: "Failed to clear cart" });
     }
+  });
+
+  // Security monitoring endpoint (for admin use)
+  app.get("/api/security/status", (req, res) => {
+    const securityStatus = {
+      blockedIPs: {
+        count: blockedIPs.size,
+        list: Array.from(blockedIPs).slice(0, 10) // Show first 10 for privacy
+      },
+      suspiciousIPs: {
+        count: suspiciousIPs.size,
+        recentActivity: Array.from(suspiciousIPs.entries())
+          .filter(([_, data]) => Date.now() - data.lastAttempt < 24 * 60 * 60 * 1000) // Last 24 hours
+          .map(([ip, data]) => ({
+            ip: ip.substring(0, ip.lastIndexOf('.')) + '.***', // Mask last octet for privacy
+            attempts: data.attempts,
+            lastAttempt: new Date(data.lastAttempt).toISOString(),
+            blockedUntil: data.blockedUntil ? new Date(data.blockedUntil).toISOString() : null
+          }))
+          .slice(0, 20)
+      },
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    };
+    
+    res.json(securityStatus);
   });
 
   const httpServer = createServer(app);
