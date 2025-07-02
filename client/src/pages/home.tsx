@@ -46,16 +46,20 @@ export default function Home() {
                 Discover our curated collection of luxurious bedsheets, elegant pillow covers, and beautiful table covers that bring comfort and style to every room.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-primary text-white hover:bg-blue-700">
-                  Shop Collection
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-primary text-primary hover:bg-primary hover:text-white"
-                >
-                  View Catalog
-                </Button>
+                <Link href="/bedsheets">
+                  <Button size="lg" className="bg-primary text-white hover:bg-blue-700 w-full sm:w-auto">
+                    Shop Collection
+                  </Button>
+                </Link>
+                <Link href="/about">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="border-primary text-primary hover:bg-primary hover:text-white w-full sm:w-auto"
+                  >
+                    Learn More
+                  </Button>
+                </Link>
               </div>
             </div>
             <div className="relative">
