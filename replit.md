@@ -1,8 +1,8 @@
-# TextileHome E-commerce Application
+# Grahsutra E-commerce Application
 
 ## Overview
 
-TextileHome is a modern e-commerce application built for selling premium textiles including bedsheets, pillow covers, and table covers. The application features a React frontend with TypeScript, an Express.js backend, and uses Drizzle ORM for database operations. The UI is built with shadcn/ui components and styled with Tailwind CSS.
+Grahsutra is a modern e-commerce application built for selling premium textiles including bedsheets, pillow covers, and table covers. The application features a React frontend with TypeScript, an Express.js backend, and uses Drizzle ORM for database operations. The UI is built with shadcn/ui components and styled with Tailwind CSS.
 
 ## System Architecture
 
@@ -184,6 +184,13 @@ Changelog:
   * Changed default admin password from admin123 to Grahpassword1207!
   * Updated admin initialization script with new secure password
   * Database successfully updated with bcrypt-hashed new password
+- July 03, 2025. Rebranded application from TextileHome to Grahsutra:
+  * Updated main title and branding across all components
+  * Changed website header logo from TextileHome to Grahsutra
+  * Updated HTML page title and meta description
+  * Modified documentation files (README.md, CONTRIBUTING.md, replit.md)
+  * Updated deployment scripts and setup documentation
+  * Preserved all functionality while applying new brand identity
 ```
 
 ## User Preferences

@@ -1,4 +1,4 @@
-# TextileHome E-commerce Platform
+# Grahsutra E-commerce Platform
 
 A modern, secure e-commerce website for premium textiles including bedsheets, pillow covers, and table covers. Built with React, TypeScript, and comprehensive security features.
 

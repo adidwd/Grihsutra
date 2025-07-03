@@ -1,6 +1,6 @@
-# Contributing to TextileHome
+# Contributing to Grahsutra
 
-Thank you for your interest in contributing to TextileHome! This document provides guidelines and information for contributors.
+Thank you for your interest in contributing to Grahsutra! This document provides guidelines and information for contributors.
 
 ## 🚀 Getting Started
 

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# TextileHome Deployment Script
+# Grahsutra Deployment Script
 set -e
 
-echo "🚀 Starting TextileHome deployment..."
+echo "🚀 Starting Grahsutra deployment..."
 
 # Check if required environment variables are set
 if [ -z "$DATABASE_URL" ]; then

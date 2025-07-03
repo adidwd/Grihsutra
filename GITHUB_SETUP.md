@@ -122,7 +122,7 @@ Your deployed application will have:
 
 ## 🎉 You're Ready!
 
-Your TextileHome platform is production-ready with:
+Your Grahsutra platform is production-ready with:
 - Comprehensive security protection
 - Automated CI/CD pipeline
 - Multiple deployment options

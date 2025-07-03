@@ -63,7 +63,7 @@ export default function About() {
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
               <p className="text-neutral mb-4 leading-relaxed">
-                Founded in 2020, TextileHome began with a simple mission: to make high-quality, beautiful textiles accessible to everyone. We believe that your home should be a sanctuary of comfort and style, and the right textiles can transform any space.
+                Founded in 2020, Grahsutra began with a simple mission: to make high-quality, beautiful textiles accessible to everyone. We believe that your home should be a sanctuary of comfort and style, and the right textiles can transform any space.
               </p>
               <p className="text-neutral mb-4 leading-relaxed">
                 Our team travels the world to source the finest materials and work with skilled artisans who share our commitment to quality and sustainability. From Egyptian cotton bedsheets to handwoven table runners, every product in our collection is chosen for its exceptional quality and timeless appeal.
