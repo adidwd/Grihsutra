@@ -1,6 +1,8 @@
-import { products, cartItems, type Product, type InsertProduct, type CartItem, type InsertCartItem, type CartItemWithProduct } from "@shared/schema";
+import { products, cartItems, admins, adminSessions, type Product, type InsertProduct, type CartItem, type InsertCartItem, type CartItemWithProduct, type Admin, type AdminSession } from "@shared/schema";
 import { db } from "./db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, gt } from "drizzle-orm";
+import bcrypt from "bcrypt";
+import { randomBytes } from "crypto";
 
 export interface IStorage {
   // Products
@@ -10,6 +12,8 @@ export interface IStorage {
   getFeaturedProducts(): Promise<Product[]>;
   searchProducts(query: string): Promise<Product[]>;
   createProduct(product: InsertProduct): Promise<Product>;
+  updateProduct(id: number, product: Partial<InsertProduct>): Promise<Product | undefined>;
+  deleteProduct(id: number): Promise<boolean>;
 
   // Cart
   getCartItems(sessionId: string): Promise<CartItemWithProduct[]>;
@@ -17,6 +21,14 @@ export interface IStorage {
   updateCartItem(id: number, quantity: number): Promise<CartItem | undefined>;
   removeFromCart(id: number): Promise<boolean>;
   clearCart(sessionId: string): Promise<boolean>;
+
+  // Admin Authentication
+  createAdmin(username: string, password: string, email?: string): Promise<Admin>;
+  validateAdmin(username: string, password: string): Promise<Admin | null>;
+  createAdminSession(adminId: number): Promise<string>;
+  validateAdminSession(sessionId: string): Promise<Admin | null>;
+  deleteAdminSession(sessionId: string): Promise<boolean>;
+  updateLastLogin(adminId: number): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -332,6 +344,39 @@ export class MemStorage implements IStorage {
     itemsToRemove.forEach(item => this.cartItems.delete(item.id));
     return true;
   }
+
+  // Placeholder admin methods for MemStorage (not implemented for development)
+  async updateProduct(id: number, product: Partial<InsertProduct>): Promise<Product | undefined> {
+    throw new Error("Admin features not available in development mode");
+  }
+
+  async deleteProduct(id: number): Promise<boolean> {
+    throw new Error("Admin features not available in development mode");
+  }
+
+  async createAdmin(username: string, password: string, email?: string): Promise<Admin> {
+    throw new Error("Admin features not available in development mode");
+  }
+
+  async validateAdmin(username: string, password: string): Promise<Admin | null> {
+    throw new Error("Admin features not available in development mode");
+  }
+
+  async createAdminSession(adminId: number): Promise<string> {
+    throw new Error("Admin features not available in development mode");
+  }
+
+  async validateAdminSession(sessionId: string): Promise<Admin | null> {
+    throw new Error("Admin features not available in development mode");
+  }
+
+  async deleteAdminSession(sessionId: string): Promise<boolean> {
+    throw new Error("Admin features not available in development mode");
+  }
+
+  async updateLastLogin(adminId: number): Promise<void> {
+    throw new Error("Admin features not available in development mode");
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -433,6 +478,103 @@ export class DatabaseStorage implements IStorage {
   async clearCart(sessionId: string): Promise<boolean> {
     await db.delete(cartItems).where(eq(cartItems.sessionId, sessionId));
     return true;
+  }
+
+  async updateProduct(id: number, productData: Partial<InsertProduct>): Promise<Product | undefined> {
+    const [product] = await db
+      .update(products)
+      .set(productData)
+      .where(eq(products.id, id))
+      .returning();
+    return product;
+  }
+
+  async deleteProduct(id: number): Promise<boolean> {
+    const result = await db
+      .delete(products)
+      .where(eq(products.id, id));
+    return true;
+  }
+
+  // Admin Authentication Methods
+  async createAdmin(username: string, password: string, email?: string): Promise<Admin> {
+    const saltRounds = 12;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+    
+    const [admin] = await db
+      .insert(admins)
+      .values({
+        username,
+        passwordHash,
+        email,
+        isActive: true,
+      })
+      .returning();
+    
+    return admin;
+  }
+
+  async validateAdmin(username: string, password: string): Promise<Admin | null> {
+    const [admin] = await db
+      .select()
+      .from(admins)
+      .where(and(eq(admins.username, username), eq(admins.isActive, true)));
+    
+    if (!admin) return null;
+    
+    const isValid = await bcrypt.compare(password, admin.passwordHash);
+    if (!isValid) return null;
+    
+    // Update last login
+    await this.updateLastLogin(admin.id);
+    
+    return admin;
+  }
+
+  async createAdminSession(adminId: number): Promise<string> {
+    const sessionId = randomBytes(64).toString('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    await db
+      .insert(adminSessions)
+      .values({
+        id: sessionId,
+        adminId,
+        expiresAt,
+      });
+
+    return sessionId;
+  }
+
+  async validateAdminSession(sessionId: string): Promise<Admin | null> {
+    const [session] = await db
+      .select({
+        session: adminSessions,
+        admin: admins,
+      })
+      .from(adminSessions)
+      .innerJoin(admins, eq(adminSessions.adminId, admins.id))
+      .where(and(
+        eq(adminSessions.id, sessionId),
+        gt(adminSessions.expiresAt, new Date()),
+        eq(admins.isActive, true)
+      ));
+
+    return session?.admin || null;
+  }
+
+  async deleteAdminSession(sessionId: string): Promise<boolean> {
+    await db
+      .delete(adminSessions)
+      .where(eq(adminSessions.id, sessionId));
+    return true;
+  }
+
+  async updateLastLogin(adminId: number): Promise<void> {
+    await db
+      .update(admins)
+      .set({ lastLogin: new Date() })
+      .where(eq(admins.id, adminId));
   }
 }
 

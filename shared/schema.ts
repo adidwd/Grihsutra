@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, decimal, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, decimal, boolean, varchar, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -43,3 +43,32 @@ export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
 export type CartItemWithProduct = CartItem & {
   product: Product;
 };
+
+// Admin authentication table
+export const admins = pgTable("admins", {
+  id: serial("id").primaryKey(),
+  username: varchar("username", { length: 50 }).unique().notNull(),
+  passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+  email: varchar("email", { length: 100 }),
+  isActive: boolean("is_active").default(true),
+  lastLogin: timestamp("last_login"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Admin session management
+export const adminSessions = pgTable("admin_sessions", {
+  id: varchar("id", { length: 128 }).primaryKey(),
+  adminId: integer("admin_id").references(() => admins.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertAdminSchema = createInsertSchema(admins).omit({
+  id: true,
+  passwordHash: true,
+  createdAt: true,
+});
+
+export type Admin = typeof admins.$inferSelect;
+export type InsertAdmin = z.infer<typeof insertAdminSchema>;
+export type AdminSession = typeof adminSessions.$inferSelect;

@@ -1,4 +1,5 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCartItemSchema } from "@shared/schema";
@@ -181,6 +182,133 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .filter(([_, data]) => Date.now() - data.lastAttempt < 24 * 60 * 60 * 1000) // Last 24 hours
           .map(([ip, data]) => ({
             ip: ip.substring(0, ip.lastIndexOf('.')) + '.***', // Mask last octet for privacy
+            attempts: data.attempts,
+            lastAttempt: new Date(data.lastAttempt).toISOString(),
+            blockedUntil: data.blockedUntil ? new Date(data.blockedUntil).toISOString() : null
+          }))
+          .slice(0, 20)
+      },
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    };
+    
+    res.json(securityStatus);
+  });
+
+  // Admin authentication routes
+  app.post('/api/admin/login', express.json(), async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password required' });
+      }
+
+      const admin = await storage.validateAdmin(username, password);
+      if (!admin) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
+      const sessionId = await storage.createAdminSession(admin.id);
+      
+      res.json({
+        success: true,
+        sessionId,
+        admin: {
+          id: admin.id,
+          username: admin.username,
+          email: admin.email,
+          lastLogin: admin.lastLogin,
+        }
+      });
+    } catch (error) {
+      console.error('Admin login error:', error);
+      res.status(500).json({ error: 'Login failed' });
+    }
+  });
+
+  app.post('/api/admin/logout', async (req, res) => {
+    const adminSession = req.headers['admin-session'] as string;
+    if (adminSession) {
+      await storage.deleteAdminSession(adminSession);
+    }
+    res.json({ success: true });
+  });
+
+  // Admin middleware
+  const requireAdmin = async (req: any, res: any, next: any) => {
+    const adminSession = req.headers['admin-session'] as string;
+    if (!adminSession) {
+      return res.status(401).json({ error: 'Admin authentication required' });
+    }
+
+    const admin = await storage.validateAdminSession(adminSession);
+    if (!admin) {
+      return res.status(401).json({ error: 'Invalid admin session' });
+    }
+
+    req.admin = admin;
+    next();
+  };
+
+  // Admin-only product management routes
+  app.put('/api/admin/products/:id', requireAdmin, express.json(), async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const productData = req.body;
+      
+      const updatedProduct = await storage.updateProduct(productId, productData);
+      if (!updatedProduct) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+      
+      res.json(updatedProduct);
+    } catch (error) {
+      console.error('Update product error:', error);
+      res.status(500).json({ error: 'Failed to update product' });
+    }
+  });
+
+  app.delete('/api/admin/products/:id', requireAdmin, async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const success = await storage.deleteProduct(productId);
+      
+      if (!success) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete product error:', error);
+      res.status(500).json({ error: 'Failed to delete product' });
+    }
+  });
+
+  app.post('/api/admin/products', requireAdmin, express.json(), async (req, res) => {
+    try {
+      const productData = req.body;
+      const newProduct = await storage.createProduct(productData);
+      res.status(201).json(newProduct);
+    } catch (error) {
+      console.error('Create product error:', error);
+      res.status(500).json({ error: 'Failed to create product' });
+    }
+  });
+
+  // Protected security endpoint
+  app.get('/api/admin/security/status', requireAdmin, (req, res) => {
+    const securityStatus = {
+      blockedIPs: {
+        count: blockedIPs.size,
+        list: Array.from(blockedIPs).slice(0, 10)
+      },
+      suspiciousIPs: {
+        count: suspiciousIPs.size,
+        recentActivity: Array.from(suspiciousIPs.entries())
+          .filter(([_, data]) => Date.now() - data.lastAttempt < 24 * 60 * 60 * 1000)
+          .map(([ip, data]) => ({
+            ip: ip.substring(0, ip.lastIndexOf('.')) + '.***',
             attempts: data.attempts,
             lastAttempt: new Date(data.lastAttempt).toISOString(),
             blockedUntil: data.blockedUntil ? new Date(data.blockedUntil).toISOString() : null

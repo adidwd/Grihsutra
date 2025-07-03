@@ -5,6 +5,23 @@ import { log } from "./vite";
 const suspiciousIPs = new Map<string, { attempts: number, lastAttempt: number, blockedUntil?: number }>();
 const blockedIPs = new Set<string>();
 
+// Development whitelist - bypass security for local development
+const developmentWhitelist = new Set([
+  '127.0.0.1',
+  '::1',
+  'localhost'
+]);
+
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+// Helper function to check if IP should be exempted
+const isWhitelisted = (ip: string): boolean => {
+  if (isDevelopment && developmentWhitelist.has(ip)) {
+    return true;
+  }
+  return false;
+};
+
 // Request validation middleware
 export const validateRequest = (req: Request, res: Response, next: NextFunction) => {
   const contentType = req.get('Content-Type');
@@ -41,6 +58,11 @@ export const validateRequest = (req: Request, res: Response, next: NextFunction)
 // IP blocking middleware
 export const ipBlocking = (req: Request, res: Response, next: NextFunction) => {
   const clientIP = req.ip || 'unknown';
+  
+  // Skip blocking for whitelisted IPs in development
+  if (isWhitelisted(clientIP)) {
+    return next();
+  }
   
   // Check if IP is permanently blocked
   if (blockedIPs.has(clientIP)) {
@@ -269,8 +291,6 @@ export const honeypot = (req: Request, res: Response, next: NextFunction) => {
   // Check for common automated attack patterns
   const suspiciousEndpoints = [
     '/wp-admin',
-    '/admin',
-    '/login',
     '/wp-login.php',
     '/.env',
     '/config',
@@ -287,8 +307,11 @@ export const honeypot = (req: Request, res: Response, next: NextFunction) => {
   if (suspiciousEndpoints.some(endpoint => req.path.toLowerCase().includes(endpoint))) {
     log(`Honeypot triggered by automated attack from ${req.ip} to ${req.path}`, 'security');
     
-    // Add to permanent block list
-    blockedIPs.add(req.ip || 'unknown');
+    // Skip blocking for whitelisted IPs in development
+    if (!isWhitelisted(req.ip || 'unknown')) {
+      // Add to permanent block list
+      blockedIPs.add(req.ip || 'unknown');
+    }
     
     // Return fake response to waste attacker's time
     return res.status(200).json({ status: 'success', message: 'Access granted' });
