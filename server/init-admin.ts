@@ -14,13 +14,13 @@ async function initializeAdmin() {
     // Create default admin user
     const defaultAdmin = await storage.createAdmin(
       'admin',
-      'admin123',
+      'Grahpassword1207!',
       'admin@textilehome.com'
     );
     
     console.log('✅ Admin user created successfully:');
     console.log(`   Username: admin`);
-    console.log(`   Password: admin123`);
+    console.log(`   Password: Grahpassword1207!`);
     console.log(`   Email: admin@textilehome.com`);
     console.log('');
     console.log('🔒 IMPORTANT: Change the password after first login!');

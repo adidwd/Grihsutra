@@ -169,7 +169,7 @@ Changelog:
   * Security monitoring panel with real-time threat tracking
   * Database schema extended with admin tables and session storage
   * Admin routes protected with middleware authentication
-  * Default admin credentials: username: admin, password: admin123
+  * Default admin credentials: username: admin, password: Grahpassword1207!
   * Admin access at /admin/login and /admin routes
 - July 03, 2025. Implemented 'Bedtime Buddy' mascot feature:
   * Interactive AI mascot with animated SVG avatar and multiple expressions
@@ -180,6 +180,10 @@ Changelog:
   * Smart integration with shopping cart for contextual assistance
   * Session-based interaction tracking and mood-based responses
   * Framer Motion animations for enhanced user engagement
+- July 03, 2025. Updated admin authentication credentials:
+  * Changed default admin password from admin123 to Grahpassword1207!
+  * Updated admin initialization script with new secure password
+  * Database successfully updated with bcrypt-hashed new password
 ```
 
 ## User Preferences
