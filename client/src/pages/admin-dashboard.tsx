@@ -75,7 +75,7 @@ export default function AdminDashboard() {
   });
 
   // Fetch products
-  const { data: products, isLoading: productsLoading } = useQuery({
+  const { data: products, isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: ['/api/products'],
     enabled: !!adminUser,
   });
@@ -84,9 +84,12 @@ export default function AdminDashboard() {
   const { data: securityStatus } = useQuery<SecurityStatus>({
     queryKey: ['/api/admin/security/status'],
     queryFn: async () => {
-      return await apiRequest('/api/admin/security/status', {
+      const response = await fetch('/api/admin/security/status', {
         headers: getAdminHeaders(),
+        credentials: 'include',
       });
+      if (!response.ok) throw new Error('Failed to fetch security status');
+      return response.json();
     },
     enabled: !!adminUser,
     refetchInterval: 30000, // Refresh every 30 seconds
@@ -95,14 +98,7 @@ export default function AdminDashboard() {
   // Update product mutation
   const updateProductMutation = useMutation({
     mutationFn: async (data: { id: number; product: Partial<Product> }) => {
-      return await apiRequest(`/api/admin/products/${data.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...getAdminHeaders(),
-        },
-        body: JSON.stringify(data.product),
-      });
+      return await apiRequest(`/api/admin/products/${data.id}`, 'PUT', data.product);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/products'] });
@@ -124,10 +120,7 @@ export default function AdminDashboard() {
   // Delete product mutation
   const deleteProductMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await apiRequest(`/api/admin/products/${id}`, {
-        method: 'DELETE',
-        headers: getAdminHeaders(),
-      });
+      return await apiRequest(`/api/admin/products/${id}`, 'DELETE');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/products'] });
@@ -148,14 +141,7 @@ export default function AdminDashboard() {
   // Add product mutation
   const addProductMutation = useMutation({
     mutationFn: async (product: Partial<Product>) => {
-      return await apiRequest('/api/admin/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...getAdminHeaders(),
-        },
-        body: JSON.stringify(product),
-      });
+      return await apiRequest('/api/admin/products', 'POST', product);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/products'] });
@@ -176,10 +162,7 @@ export default function AdminDashboard() {
 
   const handleLogout = async () => {
     try {
-      await apiRequest('/api/admin/logout', {
-        method: 'POST',
-        headers: getAdminHeaders(),
-      });
+      await apiRequest('/api/admin/logout', 'POST');
     } catch (error) {
       // Continue with logout even if API call fails
     }
@@ -207,13 +190,13 @@ export default function AdminDashboard() {
   const stats = [
     {
       title: "Total Products",
-      value: products?.length || 0,
+      value: (products as Product[])?.length || 0,
       icon: Package,
       color: "text-blue-600",
     },
     {
       title: "Featured Products",
-      value: products?.filter((p: Product) => p.featured).length || 0,
+      value: (products as Product[])?.filter((p: Product) => p.featured).length || 0,
       icon: DollarSign,
       color: "text-green-600",
     },
@@ -330,7 +313,7 @@ export default function AdminDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {products?.map((product: Product) => (
+                  {(products as Product[])?.map((product: Product) => (
                     <TableRow key={product.id}>
                       <TableCell className="font-medium">
                         {product.name}
