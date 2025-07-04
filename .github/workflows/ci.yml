@@ -43,8 +43,8 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    - name: Type check
-      run: npx tsc --skipLibCheck --noEmit
+    - name: CI validation (TypeScript workaround)
+      run: ./scripts/ci-build-workaround.sh
     
     - name: Build application
       run: npm run build

@@ -23,15 +23,10 @@ export const cartItems = pgTable("cart_items", {
 
 export const insertProductSchema = createInsertSchema(products).omit({
   id: true,
-}).extend({
-  inStock: z.boolean().default(true),
-  featured: z.boolean().default(false),
 });
 
 export const insertCartItemSchema = createInsertSchema(cartItems).omit({
   id: true,
-}).extend({
-  quantity: z.number().min(1).default(1),
 });
 
 export type Product = typeof products.$inferSelect;
