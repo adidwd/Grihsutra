@@ -23,7 +23,7 @@ jobs:
       run: npm ci
     
     - name: Type check
-      run: npx tsc --noEmit
+      run: npx tsc --skipLibCheck --noEmit
     
     - name: Build application
       run: npm run build

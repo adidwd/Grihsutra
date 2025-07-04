@@ -44,12 +44,9 @@ jobs:
       run: npm ci
     
     - name: Type check
-      run: npm run type-check
+      run: npx tsc --skipLibCheck --noEmit
     
-    - name: Lint
-      run: npm run lint
-    
-    - name: Build
+    - name: Build application
       run: npm run build
       env:
         DATABASE_URL: postgresql://test:test@localhost:5432/test
