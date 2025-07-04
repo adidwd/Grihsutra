@@ -32,18 +32,13 @@ export default function AdminLogin() {
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
     try {
-      const response = await apiRequest('/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+      const response = await apiRequest('/api/admin/login', 'POST', data);
+      const result = await response.json();
 
-      if (response.success) {
+      if (result.success) {
         // Store admin session
-        localStorage.setItem('adminSession', response.sessionId);
-        localStorage.setItem('adminUser', JSON.stringify(response.admin));
+        localStorage.setItem('adminSession', result.sessionId);
+        localStorage.setItem('adminUser', JSON.stringify(result.admin));
         
         toast({
           title: "Login successful",
