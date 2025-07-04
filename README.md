@@ -1,4 +1,7 @@
-# Grahsutra E-commerce Platform
+# Grihsutra E-commerce Platform
+
+[![CI/CD Pipeline](https://github.com/YOUR_USERNAME/grihsutra/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/YOUR_USERNAME/grihsutra/actions/workflows/ci-cd.yml)
+[![Security Scan](https://github.com/YOUR_USERNAME/grihsutra/actions/workflows/security.yml/badge.svg)](https://github.com/YOUR_USERNAME/grihsutra/actions/workflows/security.yml)
 
 A modern, secure e-commerce website for premium textiles including bedsheets, pillow covers, and table covers. Built with React, TypeScript, and comprehensive security features.
 
@@ -199,6 +202,29 @@ The project includes GitHub Actions workflows for:
 - **Deployment**: Automatic deployment to production
 - **Database Migrations**: Safe database updates
 
+### Setup GitHub Repository
+
+1. **Create GitHub Repository**:
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git branch -M main
+   git remote add origin https://github.com/YOUR_USERNAME/grihsutra.git
+   git push -u origin main
+   ```
+
+2. **Configure Secrets**:
+   Go to your GitHub repository settings and add these secrets:
+   - `DATABASE_URL`: Your production database URL
+   - `RAILWAY_TOKEN`: Your Railway deployment token
+   - `PRODUCTION_URL`: Your production site URL
+
+3. **Deploy to Railway**:
+   - Connect your GitHub repository to Railway
+   - Set environment variables in Railway dashboard
+   - Automatic deployment will trigger on every push to main branch
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -213,7 +239,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email support@textilehome.com or create an issue in the GitHub repository.
+For support, email support@grihsutra.com or create an issue in the GitHub repository.
 
 ---
 

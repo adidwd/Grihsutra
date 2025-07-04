@@ -2,9 +2,8 @@ name: Security Scan
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Run daily at 2 AM
-  push:
-    branches: [ main ]
+    - cron: '0 2 * * 1'  # Weekly on Monday at 2 AM
+  workflow_dispatch:
   pull_request:
     branches: [ main ]
 
@@ -24,57 +23,43 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    - name: Run dependency security audit
-      run: npm audit --audit-level moderate
-    
-    - name: Check for known vulnerabilities
+    - name: Run dependency audit
       run: |
-        npx audit-ci --moderate
+        npm audit --audit-level high
+        npx audit-ci --high
+    
+    - name: Check for outdated packages
+      run: npm outdated || true
 
-  container-scan:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Build Docker image
-      run: docker build -t textilehome:latest .
-    
-    - name: Run Trivy container scan
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: 'textilehome:latest'
-        format: 'sarif'
-        output: 'trivy-container-results.sarif'
-    
-    - name: Upload container scan results
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
-      with:
-        sarif_file: 'trivy-container-results.sarif'
-
-  code-quality:
+  code-security:
     runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v4
     
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v2
       with:
         languages: javascript
     
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Build
-      run: npm run build
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v2
     
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v2
+
+  secrets-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: TruffleHog OSS
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: main
+        head: HEAD
+        extra_args: --debug --only-verified

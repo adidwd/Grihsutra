@@ -49,6 +49,11 @@ app.use(helmet({
 const botDetection = (req: Request, res: Response, next: NextFunction) => {
   const userAgent = req.get('User-Agent') || '';
   
+  // Allow health checks and CI/CD monitoring
+  if (req.path === '/api/health') {
+    return next();
+  }
+  
   // Allow legitimate browsers including HeadlessChrome used by Replit
   const legitimateBrowsers = [
     /Mozilla.*Chrome/i,

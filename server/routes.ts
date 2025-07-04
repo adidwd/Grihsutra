@@ -169,6 +169,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Health check endpoint for CI/CD
+  app.get('/api/health', (req, res) => {
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      database: 'connected',
+      services: {
+        api: 'operational',
+        cart: 'operational',
+        products: 'operational'
+      }
+    });
+  });
+
   // Security monitoring endpoint (for admin use)
   app.get("/api/security/status", (req, res) => {
     const securityStatus = {

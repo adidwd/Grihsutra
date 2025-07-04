@@ -1,8 +1,8 @@
-# Grahsutra E-commerce Application
+# Grihsutra E-commerce Application
 
 ## Overview
 
-Grahsutra is a modern e-commerce application built for selling premium textiles including bedsheets, pillow covers, and table covers. The application features a React frontend with TypeScript, an Express.js backend, and uses Drizzle ORM for database operations. The UI is built with shadcn/ui components and styled with Tailwind CSS.
+Grihsutra is a modern e-commerce application built for selling premium textiles including bedsheets, pillow covers, and table covers. The application features a React frontend with TypeScript, an Express.js backend, and uses Drizzle ORM for database operations. The UI is built with shadcn/ui components and styled with Tailwind CSS.
 
 ## System Architecture
 
@@ -191,6 +191,15 @@ Changelog:
   * Modified documentation files (README.md, CONTRIBUTING.md, replit.md)
   * Updated deployment scripts and setup documentation
   * Preserved all functionality while applying new brand identity
+- July 04, 2025. Final brand correction to Grihsutra and CI/CD setup:
+  * Corrected brand name from Grahsutra to Grihsutra across all components
+  * Updated header, HTML title, About page, and documentation
+  * Created comprehensive GitHub Actions CI/CD pipeline with build, test, and deployment
+  * Added security scanning workflows for dependencies and code analysis
+  * Implemented health check endpoint for deployment verification
+  * Created Railway deployment configuration and GitHub setup guide
+  * Added CI/CD badges to README and comprehensive deployment documentation
+  * Repository now ready for GitHub with automated deployment to production
 ```
 
 ## User Preferences
